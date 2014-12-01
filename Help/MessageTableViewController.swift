@@ -13,8 +13,8 @@ class MessageTableViewController: UITableViewController, UITableViewDataSource, 
     
     var myLatitudeFloat : Float!
     var myLongitudeFloat : Float!
-    var timer : NSTimer!
-    
+    var locationTimer : NSTimer!
+    var messageTimer : NSTimer!
     
     var locationManager : CLLocationManager!
     var myLatitude : CLLocationDegrees!
@@ -27,6 +27,16 @@ class MessageTableViewController: UITableViewController, UITableViewDataSource, 
     var firstTime : Bool = true
     var myID: String!
     var addMessage : PFObject!
+    var userList: [String] = [PFUser.currentUser().description]
+    
+    
+    // *** STEP 1: STORE FIREBASE REFERENCES
+    var messagesRef: Firebase!
+    var senderRef: Firebase!
+    var sender: String!
+    var message: String!
+    var firstSender : String!
+    var firstMessage : String!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -41,8 +51,33 @@ class MessageTableViewController: UITableViewController, UITableViewDataSource, 
         // self.navigationItem.rightBarButtonItem = self.editButtonItem()
         self.timeformatter.dateFormat = "hh:mm"
     }
-    
-    
+
+    func setupFirebase() {
+        // *** STEP 2: SETUP FIREBASE
+        messagesRef = Firebase(url: "https://helpapp.firebaseio.com/message")
+        senderRef = Firebase(url: "https://helpapp.firebaseio.com/sender")
+        
+        
+        
+        // *** STEP 4: RECEIVE MESSAGES FROM FIREBASE
+        messagesRef.observeEventType(.Value, withBlock: { (snapshot) in
+            self.sender = snapshot.value as? String
+        })
+        
+        
+        messagesRef.observeEventType(.Value, withBlock: { (snapshot) in
+            self.message = snapshot.value as? String
+        })
+        
+        if(self.firstTime)
+        {
+        self.firstTime = false
+        self.firstSender = self.sender
+        self.firstMessage = self.message
+        }
+        
+    }
+
     func startUpdatingLocation()
     {
         self.locationManager.requestAlwaysAuthorization()
@@ -50,18 +85,30 @@ class MessageTableViewController: UITableViewController, UITableViewDataSource, 
     }
     
     override func viewDidAppear(animated: Bool) {
+        setupFirebase()
+        locationTimer = NSTimer.scheduledTimerWithTimeInterval(300, target: self, selector: Selector("startUpdatingLocation"), userInfo: nil, repeats: true)
+        
+        //messageTimer = NSTimer.scheduledTimerWithTimeInterval(1, target: self, selector: Selector("loadData"), userInfo: nil, repeats: true)
+        
+        var newUser = UserInfo(name: "1", message: "1")
+        for (var i = 0; i<15; i++)
+        {
+        self.users.append(newUser)
+        }
+        self.tableView.reloadData()
 
-        NSTimer.scheduledTimerWithTimeInterval(1, target: self, selector: Selector("startUpdatingLocation"), userInfo: nil, repeats: false)
     }
     
     override func viewDidDisappear(animated: Bool) {
         //self.timer.invalidate()
+        self.locationTimer.invalidate()
+        //self.messageTimer.invalidate()
     }
     
     func loadNewData()
     {
-        
-        var query = PFQuery(className: "PeopleLocation")
+        self.userList.removeAll(keepCapacity: false)
+        var query = PFQuery(className: "User")
         query.findObjectsInBackgroundWithBlock { (objects: [AnyObject]!, error:NSError!) -> Void in
             if error == nil{
                 
@@ -71,76 +118,18 @@ class MessageTableViewController: UITableViewController, UITableViewDataSource, 
                     
                     if(distance < 100)
                     {
-                        var oldCount : Int
-                        if(object.objectForKey("oldCount") == nil)
-                        {
-                            oldCount = 0
-                        }
-                        else
-                        {
-                            oldCount = object.objectForKey("oldCount") as Int
-                        }
                         
-                        var newCount : Int
-                        
-                        if(object.objectForKey("newCount") == nil)
-                        {
-                            newCount = 0
-                        }
-                        else
-                        {
-                            newCount = object.objectForKey("newCount") as Int
-                        }
-                        
-                        if((oldCount != newCount) || self.firstTime)
-                        {
-                            var userName : String = object.objectForKey("Name") as String
-                            var userMacID : String =  object.objectForKey("DeviceID") as String
-                            var messageTimeStamp : String = self.timeformatter.stringFromDate(object.updatedAt)
-                            
-                            var userMessage : String
-                            if(object.objectForKey("Message") == nil)
-                            {userMessage = ""}
-                            else
-                            {userMessage = object.objectForKey("Message") as String}
-                            
-                            var latitude : Float = object.objectForKey("Latitude") as Float
-                            var longitude : Float = object.objectForKey("Longitude") as Float
-                            
-                            if(self.firstTime)
-                            {
-                                var updateCount : PFObject = PFObject(className: "PeopleLocation")
-                                updateCount = object as PFObject
-                                updateCount["oldCount"] = oldCount
-                                updateCount["newCount"] = newCount
-                                updateCount.saveInBackgroundWithBlock({ (success: Bool!, eror: NSError!) -> Void in
-                                    print("saving updatedCount")
-                                })
-                            }
-                            else
-                            {
-                                var updateCount : PFObject = PFObject(className: "PeopleLocation")
-                                updateCount = object as PFObject
-                                updateCount["oldCount"] = object.objectForKey("newCount") as Int
-                                updateCount.saveInBackgroundWithBlock({ (success: Bool!, eror: NSError!) -> Void in
-                                    print("saving updatedCount")
-                                })
-
-                            }
-                            
-                            var newUser : UserInfo = UserInfo(name: userName, macID: userMacID, distance: distance, timeStamp: messageTimeStamp, messageText: userMessage, latitude: object.objectForKey("Latitude") as Float, longitude: object.objectForKey("Longitude") as Float, oldCount : oldCount, newCount : newCount)
-                            if(!self.firstTime)
-                            {
-                                self.users.append(newUser)
-                            }
-                        }
+                        var user =  object.objectForKey("Name") as String
+                        self.userList.append(user)
+    
                     }
                 }
-                self.firstTime = false
-                self.tableView.reloadData()
+                //var newUser = UserInfo(name: user, message: self.message)
+                //self.users.append(newUser)
+                //self.tableView.reloadData()
+
             }
         }
-        
     }
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
@@ -161,39 +150,20 @@ class MessageTableViewController: UITableViewController, UITableViewDataSource, 
         var user = self.users[indexPath.row]
         
         cell.nameField.text = user.name
-        cell.timeStamp.text = user.timeStamp
+        //cell.timeStamp.text = user.timeStamp
         cell.messageText.text = user.messageText
         return cell
     }
     
     //help message returned from AddMessageViewController
     func myVCDidFinish(controller:AddMessageViewController,message:String){
-//        userInfo = UserInfo(name: <#String#>, macID: <#String#>, distance: <#Float#>, timeStamp: <#String#>, messageText: <#String#>, latitude: <#Float#>, longitude: <#Float#>, oldCount: <#Int#>, newCount: <#Int#>)
-        addMessage = PFObject(className: "PeopleLocation")
         
-        var query : PFQuery = PFQuery(className: "PeopleLocation")
-        query.findObjectsInBackgroundWithBlock({ (objects :[AnyObject]!, error : NSError!) -> Void in
-            if error == nil {
-                for object in objects
-                {
-                    //Logic if the MacID is found
-                    if((object.objectForKey("DeviceID") as String) == self.myID)
-                    {
-                        self.addMessage = object as PFObject
-                        self.addMessage["Message"] = message
-                        self.addMessage["newCount"] = ((object.objectForKey("newCount") as Int)+1)
-                        self.addMessage.saveInBackgroundWithBlock{ (Bool, NSError) -> Void in
-                            
-                            //self.navigationController?.popViewControllerAnimated(true)
-                        }
-                        break
-                    }
-                }
-            }
-            controller.navigationController?.popViewControllerAnimated(true)
-
-        })
-
+        var currUser = PFUser.currentUser()
+        
+        senderRef.setValue(currUser.username)
+        messagesRef.setValue(message)
+        controller.navigationController?.popViewControllerAnimated(true)
+        
     }
 
     
@@ -209,53 +179,11 @@ class MessageTableViewController: UITableViewController, UITableViewDataSource, 
             break
         }
     }
-
-    /*
-    // Override to support conditional editing of the table view.
-    override func tableView(tableView: UITableView!, canEditRowAtIndexPath indexPath: NSIndexPath!) -> Bool {
-    // Return NO if you do not want the specified item to be editable.
-    return true
-    }
-    */
     
-    /*
-    // Override to support editing the table view.
-    override func tableView(tableView: UITableView!, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath!) {
-    if editingStyle == .Delete {
-    // Delete the row from the data source
-    tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Fade)
-    } else if editingStyle == .Insert {
-    // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
-    }
-    }
-    */
     
-    /*
-    // Override to support rearranging the table view.
-    override func tableView(tableView: UITableView!, moveRowAtIndexPath fromIndexPath: NSIndexPath!, toIndexPath: NSIndexPath!) {
-    
-    }
-    */
-    
-    /*
-    // Override to support conditional rearranging of the table view.
-    override func tableView(tableView: UITableView!, canMoveRowAtIndexPath indexPath: NSIndexPath!) -> Bool {
-    // Return NO if you do not want the item to be re-orderable.
-    return true
-    }
-    */
-    
-    /*
-    // MARK: - Navigation
-    
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepareForSegue(segue: UIStoryboardSegue!, sender: AnyObject!) {
-    // Get the new view controller using [segue destinationViewController].
-    // Pass the selected object to the new view controller.
-    }
-    */
     
     func locationManager(manager: CLLocationManager!, didUpdateLocations locations: [AnyObject]!) {
+        
         print("Saving Location")
         // Most recent updates are appended to end of array,
         // so find the most recent update in last index.
@@ -267,62 +195,34 @@ class MessageTableViewController: UITableViewController, UITableViewDataSource, 
         // Set the coordinates of location.
         self.myLatitude = coord.latitude
         self.myLongitude = coord.longitude
+        
         // Tell location manager to stop collecting and updating location.
         self.locationManager.stopUpdatingLocation()
         
         //Setting other variables in the PFObject
         
-        
-        let deviceID =  IdentityGenerator()
-        
-        self.myID = deviceID.identifierForVendor.UUIDString as String
-        verifyAndRegisterDevice(deviceID: self.myID)
+       saveUserPosition() //Change: Removed the line: deviceID: self.myID from parameters
         
     }
     
-    func verifyAndRegisterDevice(deviceID ID:String!) -> Void{
+    
+    
+    func saveUserPosition() -> Void{
         
+        //Saving latitude and longitude for the current user
+        var currUser = PFUser.currentUser()
         var addLocation : PFObject = PFObject(className: "PeopleLocation")
-        
-        var query : PFQuery = PFQuery(className: "PeopleLocation")
-        query.findObjectsInBackgroundWithBlock({ (objects :[AnyObject]!, error : NSError!) -> Void in
-            if error == nil {
-                for object in objects
-                {
-                    //Logic if the MacID is found
-                    if((object.objectForKey("DeviceID") as? String) == ID)
-                    {
-                        addLocation = object as PFObject
-                        addLocation["Latitude"] = (self.myLatitude.description as NSString).floatValue
-                        addLocation["Longitude"] = (self.myLongitude.description as NSString).floatValue
-                        
-                        //Saving a local copy of it
-                        addLocation["Latitude"] = (self.myLatitude.description as NSString).floatValue
-                        addLocation["Longitude"] = (self.myLongitude.description as NSString).floatValue
-                        
-                        addLocation.saveInBackgroundWithBlock({ (success:Bool!, error:NSError!) -> Void in
-                            //Done
-                        })
-                        return
-                    }
-                }
-                
-                //Logic if the registered MacID is not found
-                println(ID+" "+self.myLatitude.description+self.myLongitude.description)
-                addLocation["DeviceID"] = ID
-                addLocation["Latitude"] = (self.myLatitude.description as NSString).floatValue
-                addLocation["Longitude"] = (self.myLongitude.description as NSString).floatValue
-                
-                addLocation.saveInBackgroundWithBlock({ (success: Bool!, error: NSError!) -> Void in
-                if (success==true && (error == nil))
-                {
-                    
-                    self.timer = NSTimer.scheduledTimerWithTimeInterval(1, target: self, selector: Selector("loadNewData"), userInfo: nil, repeats: true)
-                    }
-                })
-                
+        currUser["Latitude"]=(self.myLatitude.description as NSString).floatValue
+        currUser["Longitude"]=(self.myLongitude.description as NSString).floatValue
+        currUser.saveInBackgroundWithBlock { (success:Bool!, error:NSError!) -> Void in
+            if (success==true && (error == nil))
+            {
+                //Done saving
+                //After saving get the new list of users
+                self.loadNewData()
             }
-        })
+            return
+        }
     }
     
 }

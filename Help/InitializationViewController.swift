@@ -14,7 +14,6 @@ class InitializationViewController: UIViewController,SignUpControllerDelegate{
     @IBOutlet var name: UITextField!
     @IBOutlet var initializationView: UIView!
  //   @IBOutlet var fbLoginView : FBLoginView!
-    @IBOutlet var testingfirebase: UILabel!
 
     @IBOutlet var passwordTextField: UITextField!
     var tap: UITapGestureRecognizer!
@@ -22,25 +21,6 @@ class InitializationViewController: UIViewController,SignUpControllerDelegate{
     var myID : String!
     //var timer : NSTimer!
     
-  // *** STEP 1: STORE FIREBASE REFERENCES
-    var messagesRef: Firebase!
-    func setupFirebase() {
-        // *** STEP 2: SETUP FIREBASE
-        messagesRef = Firebase(url: "https://helpapp.firebaseio.com/sender")
-        messagesRef.setValue("Do you have data? You'll love Firebase.")
-        // *** STEP 4: RECEIVE MESSAGES FROM FIREBASE
-        messagesRef.observeEventType(.Value, withBlock: { (snapshot) in
-            //let text = snapshot.value as? String
-            let sender = snapshot.value as? String
-            //print(text!+" "+sender!);
-            self.testingfirebase.text = sender
-            /*
-            let message = Message(text: text, sender: sender)
-            self.messages.append(message)
-            self.finishReceivingMessage()
-*/
-        })
-    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -52,7 +32,6 @@ class InitializationViewController: UIViewController,SignUpControllerDelegate{
         //Tap Gesture Recognizer
         self.tap=UITapGestureRecognizer()
         setup()
-        setupFirebase() 
     }
     
 

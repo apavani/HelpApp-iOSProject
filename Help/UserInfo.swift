@@ -32,5 +32,14 @@ class UserInfo{
         self.oldCount = oldCount
         self.newCount = newCount
     }
+    
+    convenience init(name: String, message: String)
+    {
+        self.init(name: "", macID: "", distance: 0.0,  timeStamp: "", messageText: "", latitude: 0.0, longitude: 0.0, oldCount : 0, newCount : 0)
+        
+        self.name = name
+        self.messageText = message
+        
+    }
 
 }
