@@ -12,22 +12,34 @@
 	<dict>
 		<key>69FE9CA4903149280A314FDD4283815AB0C7AA9F</key>
 		<string>https://github.com/apavani/HelpApp.git</string>
+		<key>82885CBCF23BB6B7FF83E64D0D0FADC6EE36A2D1</key>
+		<string>https://github.com/apavani/HelpApp-iOSProject.git</string>
 	</dict>
 	<key>IDESourceControlProjectPath</key>
 	<string>Help.xcodeproj</string>
 	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
 	<dict>
 		<key>69FE9CA4903149280A314FDD4283815AB0C7AA9F</key>
+		<string>../../../HelpApp</string>
+		<key>82885CBCF23BB6B7FF83E64D0D0FADC6EE36A2D1</key>
 		<string>../..</string>
 	</dict>
 	<key>IDESourceControlProjectURL</key>
-	<string>https://github.com/apavani/HelpApp.git</string>
+	<string>https://github.com/apavani/HelpApp-iOSProject.git</string>
 	<key>IDESourceControlProjectVersion</key>
 	<integer>111</integer>
 	<key>IDESourceControlProjectWCCIdentifier</key>
-	<string>69FE9CA4903149280A314FDD4283815AB0C7AA9F</string>
+	<string>82885CBCF23BB6B7FF83E64D0D0FADC6EE36A2D1</string>
 	<key>IDESourceControlProjectWCConfigurations</key>
 	<array>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>82885CBCF23BB6B7FF83E64D0D0FADC6EE36A2D1</string>
+			<key>IDESourceControlWCCName</key>
+			<string>FinalHelpApp</string>
+		</dict>
 		<dict>
 			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
 			<string>public.vcs.git</string>
