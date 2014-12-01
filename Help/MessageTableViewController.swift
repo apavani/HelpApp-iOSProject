@@ -9,7 +9,7 @@
 import UIKit
 import Foundation
 
-class MessageTableViewController: UITableViewController, UITableViewDataSource, AddMessageControllerDelegate, CLLocationManagerDelegate {
+class MessageTableViewController: UITableViewController, UITableViewDataSource, CLLocationManagerDelegate {
     
     var myLatitudeFloat : Float!
     var myLongitudeFloat : Float!
@@ -27,7 +27,7 @@ class MessageTableViewController: UITableViewController, UITableViewDataSource, 
     var firstTime : Bool = true
     var myID: String!
     var addMessage : PFObject!
-    var userList: [String] = [PFUser.currentUser().description]
+    var userList: [String] = []
     
     
     // *** STEP 1: STORE FIREBASE REFERENCES
@@ -45,7 +45,12 @@ class MessageTableViewController: UITableViewController, UITableViewDataSource, 
             return
         }
         
-        var userMessage = ["username": PFUser.currentUser().username, "message": self.messageField.text]
+        let date = NSDate()
+        var formatter = NSDateFormatter();
+        formatter.dateFormat = "HH:mm";
+        let defaultTimeZoneStr = formatter.stringFromDate(date);
+        
+        var userMessage = ["username": PFUser.currentUser().username, "message": self.messageField.text, "time":defaultTimeZoneStr ]
         
         self.messagesRef.setValue(userMessage)
 
@@ -76,11 +81,12 @@ class MessageTableViewController: UITableViewController, UITableViewDataSource, 
         messagesRef.observeEventType(.Value, withBlock: { (snapshot) in
             let sender: String! = snapshot.value.objectForKey("username") as? String
             let message: String! = snapshot.value.objectForKey("message") as? String
+            let timeStamp: String! = snapshot.value.objectForKey("time") as? String
             
             println(self.userList.count)
             if(contains(self.userList, sender))
             {
-                var newUser = UserInfo(name: sender, message: message)
+                var newUser = UserInfo(name: sender, message: message, timeStamp: timeStamp)
                 self.users.append(newUser)
                 self.tableView.reloadData()
             }
@@ -123,7 +129,10 @@ class MessageTableViewController: UITableViewController, UITableViewDataSource, 
     
     func loadNewUserData()
     {
+        if self.userList.isEmpty
+        {
         self.userList.removeAll(keepCapacity: false)
+        }
         var query =  PFUser.query()
         query.findObjectsInBackgroundWithBlock { (objects: [AnyObject]!, error:NSError!) -> Void in
             if error == nil{
@@ -168,41 +177,15 @@ class MessageTableViewController: UITableViewController, UITableViewDataSource, 
         var user = self.users[indexPath.row]
         
         cell.nameField.text = user.name
-        //cell.timeStamp.text = user.timeStamp
+        cell.timeStamp.text = user.timeStamp
         cell.messageText.text = user.messageText
         return cell
     }
     
-    //help message returned from AddMessageViewController
-    func myVCDidFinish(controller:AddMessageViewController,message:String){
-        
-        var currUser = PFUser.currentUser()
-        
-        senderRef.setValue(currUser.username)
-        messagesRef.setValue(message)
-        controller.navigationController?.popViewControllerAnimated(true)
-        
-    }
-
-    
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        var text:String = segue.identifier as String!
-        switch text {
-        case "toAddMessage":
-            if var secondViewController = segue.destinationViewController as? AddMessageViewController {
-                secondViewController.delegate = self
-            }
-                    
-        default:
-            break
-        }
-    }
-    
-    
     
     func locationManager(manager: CLLocationManager!, didUpdateLocations locations: [AnyObject]!) {
         
-        print("Saving Location")
+        println("Saving Location")
         // Most recent updates are appended to end of array,
         // so find the most recent update in last index.
         var loc : CLLocation = locations?[locations.count - 1] as CLLocation
@@ -234,6 +217,8 @@ class MessageTableViewController: UITableViewController, UITableViewDataSource, 
         currUser["Longitude"]=(self.myLongitude.description as NSString).floatValue
         self.myLatitudeFloat = (self.myLatitude.description as NSString).floatValue
         self.myLongitudeFloat = (self.myLongitude.description as NSString).floatValue
+        println("My Latitude: \(self.myLatitudeFloat)")
+        println("My Longitude: \(self.myLongitudeFloat)")
         currUser.saveInBackgroundWithBlock { (success:Bool!, error:NSError!) -> Void in
             if (success==true && (error == nil))
             {

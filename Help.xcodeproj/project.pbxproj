@@ -37,7 +37,6 @@
 		B4DCC8FB19E0AF1E00AAC670 /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4DCC8FA19E0AF1E00AAC670 /* StoreKit.framework */; };
 		B4DCC8FD19E0AF2700AAC670 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4DCC8FC19E0AF2700AAC670 /* SystemConfiguration.framework */; };
 		B4F384C219EB076C0047AAF6 /* TableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4F384C119EB076C0047AAF6 /* TableViewCell.swift */; };
-		B4F384C419EC726C0047AAF6 /* AddMessageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4F384C319EC726B0047AAF6 /* AddMessageViewController.swift */; };
 		B4F487D019EAF0C500D5C582 /* InitializationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4F487CF19EAF0C500D5C582 /* InitializationViewController.swift */; };
 /* End PBXBuildFile section */
 
@@ -86,7 +85,6 @@
 		B4DCC8FA19E0AF1E00AAC670 /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
 		B4DCC8FC19E0AF2700AAC670 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		B4F384C119EB076C0047AAF6 /* TableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TableViewCell.swift; sourceTree = "<group>"; };
-		B4F384C319EC726B0047AAF6 /* AddMessageViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddMessageViewController.swift; sourceTree = "<group>"; };
 		B4F487CF19EAF0C500D5C582 /* InitializationViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InitializationViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -176,7 +174,6 @@
 				B4336CA719D8BBA800979946 /* AppDelegate.swift */,
 				738EE64D19EB808F00B06DA8 /* UserInfo.swift */,
 				B4336CAD19D8BBA800979946 /* Main.storyboard */,
-				B4F384C319EC726B0047AAF6 /* AddMessageViewController.swift */,
 				B4F384C119EB076C0047AAF6 /* TableViewCell.swift */,
 				B4F487CF19EAF0C500D5C582 /* InitializationViewController.swift */,
 				B4336CB019D8BBA800979946 /* Images.xcassets */,
@@ -321,7 +318,6 @@
 				B4336CA819D8BBA800979946 /* AppDelegate.swift in Sources */,
 				738EE64E19EB808F00B06DA8 /* UserInfo.swift in Sources */,
 				B4F384C219EB076C0047AAF6 /* TableViewCell.swift in Sources */,
-				B4F384C419EC726C0047AAF6 /* AddMessageViewController.swift in Sources */,
 				1486674C1A2809B2005FF5A2 /* SignUpViewController.swift in Sources */,
 				B4F487D019EAF0C500D5C582 /* InitializationViewController.swift in Sources */,
 				7310F0D51A284FF20087441B /* FBMissingSymbols.m in Sources */,

@@ -214,20 +214,7 @@
                             <outlet property="delegate" destination="soZ-Np-4sH" id="eV1-8a-Y78"/>
                         </connections>
                     </tableView>
-                    <navigationItem key="navigationItem" title="Messages" id="hZN-SI-WOj">
-                        <barButtonItem key="rightBarButtonItem" style="plain" id="nRd-Va-WZl">
-                            <button key="customView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="jxM-hb-mOy">
-                                <rect key="frame" x="-23" y="-15" width="71" height="30"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <state key="normal" title="Add">
-                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
-                                </state>
-                                <connections>
-                                    <segue destination="UD7-rE-mcc" kind="push" identifier="toAddMessage" id="0gu-7H-znb"/>
-                                </connections>
-                            </button>
-                        </barButtonItem>
-                    </navigationItem>
+                    <navigationItem key="navigationItem" title="Messages" id="hZN-SI-WOj"/>
                     <connections>
                         <outlet property="messageField" destination="93r-fr-O3R" id="1P4-6S-7Ud"/>
                     </connections>
@@ -236,56 +223,6 @@
                 <tapGestureRecognizer id="aEG-To-soa"/>
             </objects>
             <point key="canvasLocation" x="1226" y="-334"/>
-        </scene>
-        <!--Send Message-->
-        <scene sceneID="q2S-L9-eLf">
-            <objects>
-                <viewController id="UD7-rE-mcc" customClass="AddMessageViewController" customModule="Help" customModuleProvider="target" sceneMemberID="viewController">
-                    <layoutGuides>
-                        <viewControllerLayoutGuide type="top" id="gWW-wx-Yuv"/>
-                        <viewControllerLayoutGuide type="bottom" id="4Pk-zh-QmQ"/>
-                    </layoutGuides>
-                    <view key="view" contentMode="scaleToFill" id="Bgs-L0-6Ff">
-                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
-                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <subviews>
-                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="TLn-m9-38b">
-                                <rect key="frame" x="142" y="247" width="36" height="30"/>
-                                <state key="normal" title="Send">
-                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
-                                </state>
-                                <connections>
-                                    <action selector="sendMessageButton:" destination="UD7-rE-mcc" eventType="touchUpInside" id="KK5-71-Pec"/>
-                                </connections>
-                            </button>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Message" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Wwu-db-3nd">
-                                <rect key="frame" x="125" y="86" width="70" height="21"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
-                                <nil key="highlightedColor"/>
-                            </label>
-                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="3iv-rs-fnt">
-                                <rect key="frame" x="16" y="140" width="288" height="30"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                <textInputTraits key="textInputTraits"/>
-                            </textField>
-                        </subviews>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                        <gestureRecognizers/>
-                        <connections>
-                            <outletCollection property="gestureRecognizers" destination="zUK-q7-GXr" appends="YES" id="ccQ-At-sbV"/>
-                        </connections>
-                    </view>
-                    <navigationItem key="navigationItem" title="Send Message" id="kZH-Zn-q46"/>
-                    <connections>
-                        <outlet property="messageText" destination="3iv-rs-fnt" id="i56-kv-zmy"/>
-                        <outlet property="sendMessageView" destination="Bgs-L0-6Ff" id="Wzi-UN-awR"/>
-                    </connections>
-                </viewController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="lEc-MZ-37e" userLabel="First Responder" sceneMemberID="firstResponder"/>
-                <tapGestureRecognizer id="zUK-q7-GXr"/>
-            </objects>
-            <point key="canvasLocation" x="1793" y="-289"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="aQN-FK-qY5">
