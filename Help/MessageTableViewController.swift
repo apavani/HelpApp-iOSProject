@@ -33,13 +33,27 @@ class MessageTableViewController: UITableViewController, UITableViewDataSource, 
     // *** STEP 1: STORE FIREBASE REFERENCES
     var messagesRef: Firebase!
     var senderRef: Firebase!
-    var sender: String!
-    var message: String!
+    var usersRef: Firebase!
     var firstSender : String!
     var firstMessage : String!
+    @IBOutlet weak var messageField: UITextField!
+
+    @IBAction func SendButton(sender: AnyObject) {
+        if(self.messageField.text=="")
+        {
+            self.showNullAlert()
+            return
+        }
+        
+        var userMessage = ["username": PFUser.currentUser().username, "message": self.messageField.text]
+        
+        self.messagesRef.setValue(userMessage)
+
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         self.locationManager = CLLocationManager()
         self.locationManager.desiredAccuracy = kCLLocationAccuracyHundredMeters
         self.locationManager.delegate = self
@@ -55,26 +69,33 @@ class MessageTableViewController: UITableViewController, UITableViewDataSource, 
     func setupFirebase() {
         // *** STEP 2: SETUP FIREBASE
         messagesRef = Firebase(url: "https://helpapp.firebaseio.com/message")
-        senderRef = Firebase(url: "https://helpapp.firebaseio.com/sender")
-        
+
         
         
         // *** STEP 4: RECEIVE MESSAGES FROM FIREBASE
         messagesRef.observeEventType(.Value, withBlock: { (snapshot) in
-            self.sender = snapshot.value as? String
+            let sender: String! = snapshot.value.objectForKey("username") as? String
+            let message: String! = snapshot.value.objectForKey("message") as? String
+            
+            println(self.userList.count)
+            if(contains(self.userList, sender))
+            {
+                var newUser = UserInfo(name: sender, message: message)
+                self.users.append(newUser)
+                self.tableView.reloadData()
+            }
+            
         })
         
-        
-        messagesRef.observeEventType(.Value, withBlock: { (snapshot) in
+        /*
+        senderRef.observeEventType(.Value, withBlock: { (snapshot) in
             self.message = snapshot.value as? String
         })
         
-        if(self.firstTime)
-        {
-        self.firstTime = false
-        self.firstSender = self.sender
-        self.firstMessage = self.message
-        }
+        usersRef.observeEventType(.Value, withBlock: { (snapshot) in
+            self.message = snapshot.value as? String
+        })
+        */
         
     }
 
@@ -85,17 +106,12 @@ class MessageTableViewController: UITableViewController, UITableViewDataSource, 
     }
     
     override func viewDidAppear(animated: Bool) {
-        setupFirebase()
+        startUpdatingLocation()
         locationTimer = NSTimer.scheduledTimerWithTimeInterval(300, target: self, selector: Selector("startUpdatingLocation"), userInfo: nil, repeats: true)
         
         //messageTimer = NSTimer.scheduledTimerWithTimeInterval(1, target: self, selector: Selector("loadData"), userInfo: nil, repeats: true)
         
-        var newUser = UserInfo(name: "1", message: "1")
-        for (var i = 0; i<15; i++)
-        {
-        self.users.append(newUser)
-        }
-        self.tableView.reloadData()
+       
 
     }
     
@@ -105,13 +121,13 @@ class MessageTableViewController: UITableViewController, UITableViewDataSource, 
         //self.messageTimer.invalidate()
     }
     
-    func loadNewData()
+    func loadNewUserData()
     {
         self.userList.removeAll(keepCapacity: false)
-        var query = PFQuery(className: "User")
+        var query =  PFUser.query()
         query.findObjectsInBackgroundWithBlock { (objects: [AnyObject]!, error:NSError!) -> Void in
             if error == nil{
-                
+                println("Size of users is \(objects.count)")
                 for object in objects{
                     let distanceCalc = DistanceCalculator(lat1: self.myLatitudeFloat, lat2: object.objectForKey("Latitude") as Float, lon1: self.myLongitudeFloat , lon2: object.objectForKey("Longitude") as Float)
                     var distance : Float = distanceCalc.calculateDistance()
@@ -119,18 +135,20 @@ class MessageTableViewController: UITableViewController, UITableViewDataSource, 
                     if(distance < 100)
                     {
                         
-                        var user =  object.objectForKey("Name") as String
+                        var user =  object.objectForKey("username") as String
                         self.userList.append(user)
-    
                     }
                 }
-                //var newUser = UserInfo(name: user, message: self.message)
-                //self.users.append(newUser)
-                //self.tableView.reloadData()
+                println("Finished saving nearby users")
 
             }
         }
+        
+        //Set up firebase only once you have all the user data
+        setupFirebase()
     }
+    
+    
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
@@ -214,15 +232,23 @@ class MessageTableViewController: UITableViewController, UITableViewDataSource, 
         var addLocation : PFObject = PFObject(className: "PeopleLocation")
         currUser["Latitude"]=(self.myLatitude.description as NSString).floatValue
         currUser["Longitude"]=(self.myLongitude.description as NSString).floatValue
+        self.myLatitudeFloat = (self.myLatitude.description as NSString).floatValue
+        self.myLongitudeFloat = (self.myLongitude.description as NSString).floatValue
         currUser.saveInBackgroundWithBlock { (success:Bool!, error:NSError!) -> Void in
             if (success==true && (error == nil))
             {
                 //Done saving
                 //After saving get the new list of users
-                self.loadNewData()
+                self.loadNewUserData()
             }
             return
         }
+    }
+    
+    func showNullAlert(){
+        var alert = UIAlertController(title: "Message Field Is Left Blank", message: "Please enter a message first, and then press the Send button", preferredStyle: UIAlertControllerStyle.Alert)
+        alert.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: nil))
+        self.presentViewController(alert, animated: true, completion: nil)
     }
     
 }
